@@ -222,7 +222,7 @@ void DisplayPlaneState::RefreshLayerRects(
   const std::vector<size_t> &current_layers = private_data_->source_layers_;
   HwcRect<int> target_display_frame;
   HwcRect<float> target_source_crop;
-  bool only_cursor_layer = true;
+  bool only_cursor_layer = false;
   for (const size_t &index : current_layers) {
     const OverlayLayer &layer = layers.at(index);
     const HwcRect<int> &df = layer.GetDisplayFrame();

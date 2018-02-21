@@ -240,10 +240,6 @@ void DisplayQueue::GetCachedLayers(const std::vector<OverlayLayer>& layers,
             }
           }
         }
-      } else {
-        // Let's force reset the rects of all layers as layer
-        // might have changed position.
-        last_plane.ResetLayers(layers, threshold, &needs_plane_validation);
       }
 
       if (needs_plane_validation)
@@ -255,6 +251,10 @@ void DisplayQueue::GetCachedLayers(const std::vector<OverlayLayer>& layers,
       bool update_rect = false;
       bool damage_initialized = false;
       bool refresh_surfaces = reset_composition_regions;
+
+      if (reset_plane && !removed_layers) {
+        update_rect = true;
+      }
 
       const std::vector<size_t>& source_layers = last_plane.GetSourceLayers();
       size_t layers_size = source_layers.size();
@@ -590,6 +590,12 @@ bool DisplayQueue::QueueUpdate(std::vector<HwcLayer*>& source_layers,
   bool composition_passed = true;
   bool disable_ovelays = state_ & kDisableOverlayUsage;
   if (!validate_layers && tracker.RevalidateLayers()) {
+    validate_layers = true;
+  }
+
+  // FIXME: We should handle cases when layers are removed/moved
+  // between planes correctly.
+  if ((add_index != -1) || (remove_index != -1)) {
     validate_layers = true;
   }
 
